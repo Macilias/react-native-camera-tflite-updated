@@ -7,6 +7,9 @@ import android.graphics.Paint;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.exifinterface.media.ExifInterface;
+import android.support.media.ExifInterface;
+import android.util.SparseArray;
+import java.nio.ByteBuffer;
 import android.view.ViewGroup;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -299,7 +302,7 @@ public class RNCameraViewHelper {
 
   public static void emitModelProcessedEvent(
       ViewGroup view,
-      SparseArray<TextBlock> textBlocks,
+      ByteBuffer data,
       ImageDimensions dimensions) {
     float density = view.getResources().getDisplayMetrics().density;
 
@@ -308,7 +311,7 @@ public class RNCameraViewHelper {
 
     ModelProcessedEvent event = ModelProcessedEvent.obtain(
         view.getId(),
-        textBlocks,
+        data,
         dimensions,
         scaleX,
         scaleY

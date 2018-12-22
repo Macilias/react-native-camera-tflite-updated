@@ -8,6 +8,9 @@ import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.SparseArray;
+import java.nio.ByteBuffer;
 import android.view.View;
 import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
@@ -21,6 +24,7 @@ import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import org.tensorflow.lite.Interpreter;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +61,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private RNBarcodeDetector mGoogleBarcodeDetector;
   private TextRecognizer mTextRecognizer;
   private TextRecognizer mModelProcessor;
+    //  private Interpreter mModelProcessor;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
@@ -446,6 +451,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   private void setupModelProcessor() {
+      //    mModelProcessor = new Interpreter(loadModelFile(activity));
     mModelProcessor = new TextRecognizer.Builder(mThemedReactContext).build();
   }
 
@@ -507,15 +513,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   @Override
-  public void onModelProcessed(SparseArray<TextBlock> textBlocks, int sourceWidth, int sourceHeight, int sourceRotation) {
+  public void onModelProcessed(ByteBuffer data, int sourceWidth, int sourceHeight, int sourceRotation) {
     if (!mShouldProcessModel) {
       return;
     }
 
-    SparseArray<TextBlock> textBlocksDetected = textBlocks == null ? new SparseArray<TextBlock>() : textBlocks;
+    ByteBuffer dataDetected = data == null ? ByteBuffer.allocate(0) : data;
     ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
 
-    RNCameraViewHelper.emitModelProcessedEvent(this, textBlocksDetected, dimensions);
+    RNCameraViewHelper.emitModelProcessedEvent(this, dataDetected, dimensions);
   }
 
   @Override
@@ -575,6 +581,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
     if (mModelProcessor != null) {
       mModelProcessor.release();
+      //      mModelProcessor.close();
     }
     mMultiFormatReader = null;
     stop();
