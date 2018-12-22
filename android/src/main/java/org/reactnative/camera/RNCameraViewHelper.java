@@ -297,6 +297,27 @@ public class RNCameraViewHelper {
     });
   }
 
+  public static void emitModelProcessedEvent(
+      ViewGroup view,
+      SparseArray<TextBlock> textBlocks,
+      ImageDimensions dimensions) {
+    float density = view.getResources().getDisplayMetrics().density;
+
+    double scaleX = (double) view.getWidth() / (dimensions.getWidth() * density);
+    double scaleY = (double) view.getHeight() / (dimensions.getHeight() * density);
+
+    ModelProcessedEvent event = ModelProcessedEvent.obtain(
+        view.getId(),
+        textBlocks,
+        dimensions,
+        scaleX,
+        scaleY
+    );
+
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+
   // Utilities
 
   public static int getCorrectCameraRotation(int rotation, int facing, int cameraOrientation) {

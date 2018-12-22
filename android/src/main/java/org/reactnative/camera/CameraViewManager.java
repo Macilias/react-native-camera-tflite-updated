@@ -24,6 +24,7 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
     EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
     EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
+    EVENT_ON_MODEL_PROCESSED("onModelProcessed"),
     EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
     EVENT_ON_PICTURE_SAVED("onPictureSaved");
 
@@ -197,5 +198,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "textRecognizerEnabled")
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);
+  }
+
+  @ReactProp(name = "modelProcessorEnabled")
+  public void setModelProcessing(RNCameraView view, boolean modelProcessorEnabled) {
+    view.setShouldProcessModel(modelProcessorEnabled);
   }
 }
