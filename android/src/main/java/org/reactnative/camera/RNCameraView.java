@@ -498,7 +498,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
-  public void setShouldProcessModel(boolean shouldProcessModel) {
+  public void setModelFile(String modelFile) {
+    this.mModelFile = modelFile;
+    boolean shouldProcessModel = (modelFile != null);
     if (shouldProcessModel && mModelProcessor == null) {
       setupModelProcessor();
     }

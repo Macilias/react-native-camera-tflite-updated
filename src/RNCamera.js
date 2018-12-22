@@ -841,10 +841,9 @@ export default class Camera extends React.Component<PropsType, StateType> {
       newProps.textRecognizerEnabled = true;
     }
 
-    if (props.onModelProcessed) {
-      newProps.modelProcessorEnabled = true;
+    if (props.onModelProcessed && props.modelFile) {
+      newProps.modelFile = props.modelFile;
     }
-    newProps.modelFile = props.modelFile || "";
 
     if (Platform.OS === 'ios') {
       delete newProps.googleVisionBarcodeMode;
@@ -874,7 +873,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     googleVisionBarcodeDetectorEnabled: true,
     faceDetectorEnabled: true,
     textRecognizerEnabled: true,
-    modelProcessorEnabled: true,
+    modelFile: null,
     importantForAccessibility: true,
     onBarCodeRead: true,
     onGoogleVisionBarcodesDetected: true,
