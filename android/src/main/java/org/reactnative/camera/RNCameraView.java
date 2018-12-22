@@ -24,6 +24,11 @@ import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import android.content.res.AssetFileDescriptor;
+import java.io.FileInputStream;
+import java.nio.channels.FileChannel;
+import java.nio.MappedByteBuffer;
+
 import org.tensorflow.lite.Interpreter;
 import android.util.Log;
 
@@ -61,9 +66,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private RNFaceDetector mFaceDetector;
   private RNBarcodeDetector mGoogleBarcodeDetector;
   private TextRecognizer mTextRecognizer;
-  private TextRecognizer mModelProcessor;
   private String mModelFile;
-    //  private Interpreter mModelProcessor;
+  private Interpreter mModelProcessor;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
@@ -452,9 +456,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
   }
 
+  private MappedByteBuffer loadModelFile() throws IOException{
+    AssetFileDescriptor fileDescriptor = mThemedReactContext.getAssets().openFd(mModelFile);
+    FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+    FileChannel fileChannel = inputStream.getChannel();
+    long startOffset = fileDescriptor.getStartOffset();
+    long declaredLength = fileDescriptor.getDeclaredLength();
+    return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+  }
+
   private void setupModelProcessor() {
-      //    mModelProcessor = new Interpreter(loadModelFile(activity));
-    mModelProcessor = new TextRecognizer.Builder(mThemedReactContext).build();
+    try {
+      mModelProcessor = new Interpreter(loadModelFile());
+    } catch(Exception e) {}
   }
 
   public void setGoogleVisionBarcodeType(int barcodeType) {
@@ -591,8 +605,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       mTextRecognizer.release();
     }
     if (mModelProcessor != null) {
-      mModelProcessor.release();
-      //      mModelProcessor.close();
+      mModelProcessor.close();
     }
     mMultiFormatReader = null;
     stop();
