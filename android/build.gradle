@@ -68,6 +68,12 @@ repositories {
   google()
   jcenter()
   mavenCentral()
+  maven {
+    url 'https://google.bintray.com/tensorflow'
+  }
+  maven {
+   url 'https://maven.google.com'
+  }
   maven { url "https://jitpack.io" }
   maven {
     // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -77,7 +83,7 @@ repositories {
 
 dependencies {
   def googlePlayServicesVisionVersion = safeExtGet('googlePlayServicesVisionVersion', safeExtGet('googlePlayServicesVersion', '17.0.2'))
-
+  compileOnly 'org.tensorflow:tensorflow-lite:+'
   implementation 'com.facebook.react:react-native:+'
   implementation "com.google.zxing:core:3.3.3"
   implementation "com.drewnoakes:metadata-extractor:2.11.0"
