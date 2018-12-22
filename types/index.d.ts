@@ -197,6 +197,8 @@ export interface RNCameraProps {
   onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
   // -- ANDROID ONLY PROPS
   /** Android only */
+  onModelProcessed?(response: { textBlocks: TrackedTextFeature[] }): void;
+  /** Android only */
   ratio?: string;
   /** Android only - Deprecated */
   permissionDialogTitle?: string;

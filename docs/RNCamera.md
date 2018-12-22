@@ -532,6 +532,14 @@ RNCamera uses the Firebase MLKit for Text Recognition, you can read more info ab
 
 Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array of TextBlock objects.
 
+### Model Processing Related props
+
+Will add more details
+
+#### `onModelProcessed`
+
+Method to be called when model is processed. Will add more details soon.
+
 ## Component instance methods
 
 ### `takePictureAsync([options]): Promise`
