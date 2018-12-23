@@ -74,6 +74,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int[] mModelViewBuf;
   private int mModelImageDimX;
   private int mModelImageDimY;
+  private int mModelOutputDim;
   private ByteBuffer mModelOutput;
   private boolean mShouldDetectFaces = false;
   private boolean mShouldGoogleDetectBarcodes = false;
@@ -494,12 +495,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private void setupModelProcessor() {
     try {
       mModelProcessor = new Interpreter(loadModelFile());
-      mModelMaxFreqms = 1000;
-      mModelImageDimX = 224;
-      mModelImageDimY = 224;
       mModelInput = ByteBuffer.allocateDirect(mModelImageDimX * mModelImageDimY * 3);
       mModelViewBuf = new int[mModelImageDimX * mModelImageDimY];
-      mModelOutput = ByteBuffer.allocateDirect(1001);
+      mModelOutput = ByteBuffer.allocateDirect(mModelOutputDim);
     } catch(Exception e) {}
   }
 
@@ -544,8 +542,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
-  public void setModelFile(String modelFile) {
+  public void setModelFile(String modelFile, int inputDimX, int inputDimY, int outputDim, int freqms) {
     this.mModelFile = modelFile;
+    this.mModelImageDimX = inputDimX;
+    this.mModelImageDimY = inputDimY;
+    this.mModelOutputDim = outputDim;
+    this.mModelMaxFreqms = freqms;
     boolean shouldProcessModel = (modelFile != null);
     if (shouldProcessModel && mModelProcessor == null) {
       setupModelProcessor();
