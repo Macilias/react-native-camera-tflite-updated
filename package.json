@@ -1,13 +1,8 @@
 {
   "name": "react-native-camera-tflite",
   "description": "A Camera component for React Native. Also reads barcodes.",
-<<<<<<< HEAD
   "version": "3.15.1",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
-=======
-  "version": "0.0.2",
-  "author": "ppsreejith",
->>>>>>> Updated readme
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/react-native-camera",
