@@ -519,6 +519,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected);
   }
 
+  public void onBarcodesDetected(SparseArray<Barcode> barcodesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
+    if (!mShouldGoogleDetectBarcodes) {
+      return;
+    }
+
+    SparseArray<Barcode> barcodesDetected = barcodesReported == null ? new SparseArray<Barcode>() : barcodesReported;
+
+    RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected);
+  }
+
   public void onBarcodeDetectionError(RNBarcodeDetector barcodeDetector) {
     if (!mShouldGoogleDetectBarcodes) {
       return;
@@ -538,7 +548,21 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
    */
 
   public void setShouldRecognizeText(boolean shouldRecognizeText) {
+    if (shouldRecognizeText && mTextRecognizer == null) {
+      setupTextRecongnizer();
+    }
     this.mShouldRecognizeText = shouldRecognizeText;
+    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
+  }
+
+  public void setModelFile(String modelFile) {
+    this.mModelFile = modelFile;
+
+    boolean shouldProcessModel = (modelFile != null);
+    if (shouldProcessModel && mModelProcessor == null) {
+      setupModelProcessor();
+    }
+    this.mShouldProcessModel = shouldProcessModel;
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
@@ -556,19 +580,16 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
-  public void onTextRecognized(WritableArray serializedData) {
-  public void setModelFile(String modelFile) {
-      this.mModelFile = modelFile;
-      Log.v("Model file", modelFile);
-  }
-
   @Override
   public void onTextRecognized(SparseArray<TextBlock> textBlocks, int sourceWidth, int sourceHeight, int sourceRotation) {
     if (!mShouldRecognizeText) {
       return;
     }
 
-    RNCameraViewHelper.emitTextRecognizedEvent(this, serializedData);
+    SparseArray<TextBlock> textBlocksDetected = textBlocks == null ? new SparseArray<TextBlock>() : textBlocks;
+    ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
+
+    RNCameraViewHelper.emitTextRecognizedEvent(this, textBlocksDetected, dimensions);
   }
 
   @Override
@@ -581,6 +602,14 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
 
     RNCameraViewHelper.emitModelProcessedEvent(this, dataDetected, dimensions);
+  }
+
+  public void onTextRecognized(WritableArray serializedData) {
+    if (!mShouldRecognizeText) {
+      return;
+    }
+
+    RNCameraViewHelper.emitTextRecognizedEvent(this, serializedData);
   }
 
   @Override
