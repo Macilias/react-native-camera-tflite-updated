@@ -9,7 +9,6 @@ import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 import java.nio.ByteBuffer;
 import android.view.View;
@@ -23,6 +22,7 @@ import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
 import org.reactnative.camera.tasks.*;
+import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
 import android.content.res.AssetFileDescriptor;
@@ -66,7 +66,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private MultiFormatReader mMultiFormatReader;
   private RNFaceDetector mFaceDetector;
   private RNBarcodeDetector mGoogleBarcodeDetector;
-  private TextRecognizer mTextRecognizer;
   private String mModelFile;
   private Interpreter mModelProcessor;
   private int mModelMaxFreqms;
@@ -438,14 +437,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
-  public void setShouldGoogleDetectBarcodes(boolean shouldDetectBarcodes) {
-    if (shouldDetectBarcodes && mGoogleBarcodeDetector == null) {
-      setupBarcodeDetector();
-    }
-    this.mShouldGoogleDetectBarcodes = shouldDetectBarcodes;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
-  }
-
   public void onFacesDetected(WritableArray data) {
     if (!mShouldDetectFaces) {
       return;
@@ -519,16 +510,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected);
   }
 
-  public void onBarcodesDetected(SparseArray<Barcode> barcodesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
-    if (!mShouldGoogleDetectBarcodes) {
-      return;
-    }
-
-    SparseArray<Barcode> barcodesDetected = barcodesReported == null ? new SparseArray<Barcode>() : barcodesReported;
-
-    RNCameraViewHelper.emitBarcodesDetectedEvent(this, barcodesDetected);
-  }
-
   public void onBarcodeDetectionError(RNBarcodeDetector barcodeDetector) {
     if (!mShouldGoogleDetectBarcodes) {
       return;
@@ -548,9 +529,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
    */
 
   public void setShouldRecognizeText(boolean shouldRecognizeText) {
-    if (shouldRecognizeText && mTextRecognizer == null) {
-      setupTextRecongnizer();
-    }
     this.mShouldRecognizeText = shouldRecognizeText;
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
@@ -580,17 +558,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
-  @Override
-  public void onTextRecognized(SparseArray<TextBlock> textBlocks, int sourceWidth, int sourceHeight, int sourceRotation) {
-    if (!mShouldRecognizeText) {
-      return;
-    }
-
-    SparseArray<TextBlock> textBlocksDetected = textBlocks == null ? new SparseArray<TextBlock>() : textBlocks;
-    ImageDimensions dimensions = new ImageDimensions(sourceWidth, sourceHeight, sourceRotation, getFacing());
-
-    RNCameraViewHelper.emitTextRecognizedEvent(this, textBlocksDetected, dimensions);
-  }
 
   @Override
   public void onModelProcessed(ByteBuffer data, int sourceWidth, int sourceHeight, int sourceRotation) {
@@ -663,9 +630,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
     if (mGoogleBarcodeDetector != null) {
       mGoogleBarcodeDetector.release();
-    }
-    if (mTextRecognizer != null) {
-      mTextRecognizer.release();
     }
     if (mModelProcessor != null) {
       mModelProcessor.close();

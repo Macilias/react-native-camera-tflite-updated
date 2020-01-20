@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.exifinterface.media.ExifInterface;
-import android.support.media.ExifInterface;
 import android.util.SparseArray;
 import java.nio.ByteBuffer;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import com.google.android.cameraview.CameraView;
 import com.google.zxing.Result;
 import org.reactnative.camera.events.*;
 import org.reactnative.barcodedetector.RNBarcodeDetector;
+import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.text.SimpleDateFormat;
