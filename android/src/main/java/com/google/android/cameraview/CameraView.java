@@ -18,8 +18,6 @@ package com.google.android.cameraview;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Rect;
-import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.HandlerThread;
@@ -33,7 +31,6 @@ import androidx.core.os.ParcelableCompat;
 import androidx.core.os.ParcelableCompatCreatorCallbacks;
 import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.graphics.SurfaceTexture;
@@ -812,7 +809,7 @@ public class CameraView extends FrameLayout {
          * Called when a video is recorded.
          *
          * @param cameraView The associated {@link CameraView}.
-         * @param path       Path to recoredd video file.
+         * @param path       Path to recorded video file.
          */
         public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {
         }
