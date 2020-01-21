@@ -9,7 +9,6 @@ import android.media.CamcorderProfile;
 import android.media.MediaActionSound;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
-import android.util.SparseArray;
 import java.nio.ByteBuffer;
 import android.view.View;
 import android.os.AsyncTask;
@@ -437,6 +436,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
+
   public void onFacesDetected(WritableArray data) {
     if (!mShouldDetectFaces) {
       return;
@@ -471,7 +471,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       setupBarcodeDetector();
     }
     this.mShouldGoogleDetectBarcodes = shouldDetectBarcodes;
-    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText);
+    setScanning(mShouldDetectFaces || mShouldGoogleDetectBarcodes || mShouldScanBarCodes || mShouldRecognizeText || mShouldProcessModel);
   }
 
   private MappedByteBuffer loadModelFile() throws IOException {
@@ -592,7 +592,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   /**
    *
    * End Text Recognition */
-
 
   @Override
   public void onHostResume() {
