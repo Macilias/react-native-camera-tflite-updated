@@ -15,6 +15,9 @@ import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
+import com.google.firebase.ml.common.FirebaseMLException;
+import com.google.firebase.ml.custom.FirebaseCustomLocalModel;
+import com.google.firebase.ml.custom.FirebaseModelInterpreterOptions;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
@@ -24,13 +27,12 @@ import org.reactnative.camera.tasks.*;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
+import com.google.firebase.ml.custom.FirebaseModelInterpreter;
 import android.content.res.AssetFileDescriptor;
 import java.io.FileInputStream;
 import java.nio.channels.FileChannel;
 import java.nio.MappedByteBuffer;
 import android.graphics.Bitmap;
-
-import org.tensorflow.lite.Interpreter;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +68,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private RNFaceDetector mFaceDetector;
   private RNBarcodeDetector mGoogleBarcodeDetector;
   private String mModelFile;
-  private Interpreter mModelProcessor;
+  private FirebaseModelInterpreter mModelProcessor;
   private int mModelMaxFreqms;
   private ByteBuffer mModelInput;
   private int[] mModelViewBuf;
@@ -483,9 +485,34 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
   }
 
+  private FirebaseModelInterpreter createInterpreter(FirebaseCustomLocalModel localModel) throws FirebaseMLException {
+    // [START mlkit_create_interpreter]
+    FirebaseModelInterpreter interpreter = null;
+    try {
+      FirebaseModelInterpreterOptions options =
+              new FirebaseModelInterpreterOptions.Builder(localModel).build();
+      interpreter = FirebaseModelInterpreter.getInstance(options);
+    } catch (FirebaseMLException e) {
+      // ...
+    }
+    // [END mlkit_create_interpreter]
+
+    return interpreter;
+  }
+
+  private FirebaseCustomLocalModel configureLocalModelSource() {
+    // [START mlkit_local_model_source]
+    FirebaseCustomLocalModel localModel = new FirebaseCustomLocalModel.Builder()
+            .setAssetFilePath(mModelFile)
+            .build();
+    // [END mlkit_local_model_source]
+    return localModel;
+  }
+
   private void setupModelProcessor() {
     try {
-      mModelProcessor = new Interpreter(loadModelFile());
+      FirebaseCustomLocalModel localModel = configureLocalModelSource();
+      mModelProcessor = createInterpreter(localModel);
       mModelInput = ByteBuffer.allocateDirect(mModelImageDimX * mModelImageDimY * 3);
       mModelViewBuf = new int[mModelImageDimX * mModelImageDimY];
       mModelOutput = ByteBuffer.allocateDirect(mModelOutputDim);

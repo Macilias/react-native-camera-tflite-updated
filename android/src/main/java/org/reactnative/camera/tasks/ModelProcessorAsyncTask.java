@@ -1,18 +1,19 @@
 package org.reactnative.camera.tasks;
 
-import org.tensorflow.lite.Interpreter;
+import com.google.firebase.ml.common.FirebaseMLException;
+import com.google.firebase.ml.custom.FirebaseModelDataType;
+import com.google.firebase.ml.custom.FirebaseModelInputOutputOptions;
+import com.google.firebase.ml.custom.FirebaseModelInputs;
+import com.google.firebase.ml.custom.FirebaseModelInterpreter;
 import android.os.SystemClock;
 import java.nio.ByteBuffer;
-import java.io.ByteArrayOutputStream;
-import android.view.TextureView;
 
 import java.util.concurrent.TimeUnit;
-import java.util.Arrays;
 
 public class ModelProcessorAsyncTask extends android.os.AsyncTask<Void, Void, ByteBuffer> {
 
   private ModelProcessorAsyncTaskDelegate mDelegate;
-  private Interpreter mModelProcessor;
+  private FirebaseModelInterpreter mModelProcessor;
   private ByteBuffer mInputBuf;
   private ByteBuffer mOutputBuf;
   private int mModelMaxFreqms;
@@ -22,7 +23,7 @@ public class ModelProcessorAsyncTask extends android.os.AsyncTask<Void, Void, By
 
   public ModelProcessorAsyncTask(
       ModelProcessorAsyncTaskDelegate delegate,
-      Interpreter modelProcessor,
+      FirebaseModelInterpreter modelProcessor,
       ByteBuffer inputBuf,
       ByteBuffer outputBuf,
       int modelMaxFreqms,
@@ -39,6 +40,18 @@ public class ModelProcessorAsyncTask extends android.os.AsyncTask<Void, Void, By
     mHeight = height;
     mRotation = rotation;
   }
+
+  private FirebaseModelInputOutputOptions createInputOutputOptions() throws FirebaseMLException {
+    // [START mlkit_create_io_options]
+    FirebaseModelInputOutputOptions inputOutputOptions =
+            new FirebaseModelInputOutputOptions.Builder()
+                    .setInputFormat(0, FirebaseModelDataType.FLOAT32, new int[]{1, 224, 224, 3})
+                    .setOutputFormat(0, FirebaseModelDataType.FLOAT32, new int[]{1, 5})
+                    .build();
+    // [END mlkit_create_io_options]
+
+    return inputOutputOptions;
+  }
     
   @Override
   protected ByteBuffer doInBackground(Void... ignored) {
@@ -49,7 +62,11 @@ public class ModelProcessorAsyncTask extends android.os.AsyncTask<Void, Void, By
     try {
       mInputBuf.rewind();
       mOutputBuf.rewind();
-      mModelProcessor.run(mInputBuf, mOutputBuf);
+      FirebaseModelInputs inputs = new FirebaseModelInputs.Builder()
+              .add(mInputBuf)  // add() as many input arrays as your model requires
+              .build();
+      FirebaseModelInputOutputOptions inputOutputOptions = createInputOutputOptions();
+      mModelProcessor.run(inputs, inputOutputOptions);
     } catch (Exception e) {}
     try {
       if (mModelMaxFreqms > 0) {
